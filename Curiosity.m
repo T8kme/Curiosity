@@ -60,7 +60,7 @@ guidata(hObject, handles);
 
 % UIWAIT makes Curiosity wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-
+imshow('pia16207-43.jpg')
 
 % --- Outputs from this function are returned to the command line.
 function varargout = Curiosity_OutputFcn(hObject, eventdata, handles) 
