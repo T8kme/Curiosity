@@ -22,7 +22,7 @@ function varargout = Curiosity(varargin)
 
 % Edit the above text to modify the response to help Curiosity
 
-% Last Modified by GUIDE v2.5 17-Jan-2015 16:54:35
+% Last Modified by GUIDE v2.5 17-Jan-2015 21:23:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -83,7 +83,6 @@ function start_Callback(hObject, eventdata, handles)
 % Zamiany w GUI po uruchomieniu
 set(handles.start,'BackgroundColor','green');
 set(handles.start,'Enable','off')
-set(handles.manual,'Enable','off')
 % Wybieranie drogi jaka bedze przemieszczac sie probka
 if handles.manual == 1
     wybor1 = menu('Wybierz cel próbki','SAM1','SAM2','CHEMIN','TACKA')  
@@ -103,35 +102,94 @@ if handles.manual == 1
         case 4
             wybor1 = menu('Wybierz Ÿród³o próbki','£y¿ka','Wiert³o') 
     end    
-else
+else 
+    set(handles.manual,'Enable','off')
     set(handles.slider1,'Enable','off')
     %Wybiera automatycznie droge
 end
-order = 1
+order = 0
 while 1
     switch order
-        case 0
+        case 0 % Przygotowanie komponentow
+            order = 1
         case 1 % Lyzka
-            if rand <= 0.5
-            order = 0
-            set(handles.awaria,'BackgroundColor','red');
-            set(handles.opis,'string','£y¿ka nie mo¿e pobraæ materia³u!');
-            pause(1)
-            set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi ponowne pobranie materialu');
-            pause(3)
-            set(handles.awaria,'BackgroundColor','default');
+            set(handles.lyzka,'BackgroundColor','green');
+            if rand <= 0.2
+                order = 0
+                set(handles.awaria,'BackgroundColor','red');
+                set(handles.opis,'string','£y¿ka nie mo¿e pobraæ materia³u!');
+                pause(1)
+                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi ponowne pobranie materialu');
+                pause(3)
+                set(handles.awaria,'BackgroundColor','default');
+                set(handles.opis,'string','');
+                set(handles.rozwiazanie,'string','');
             end
+            pause(3)
+            set(handles.lyzka,'BackgroundColor','default');
+            order = 3
         case 2 % Wiertlo
+            %pobieranie danych xD
         case 3 % Przemieszenie
+            set(handles.wibracje,'BackgroundColor','green');
+            if rand <= 0.2
+                order = 0
+                set(handles.awaria,'BackgroundColor','red');
+                set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mieœci siê w kanale transportowym.');
+                pause(1)
+                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi usuniêcie próbki i pobranie na nowo.');
+                pause(3)
+                set(handles.awaria,'BackgroundColor','default');
+                set(handles.opis,'string','');
+                set(handles.rozwiazanie,'string','');
+            end
+            pause(3)
+            set(handles.wibracje,'BackgroundColor','default');
         case 4 % Sito1mm
+            set(handles.rozdrabniacz,'BackgroundColor','green');
+             if probka <= 1
+                set(handles.awaria,'BackgroundColor','red');
+                set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mozna przesiac przez sito.');
+                pause(1)
+                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi przekazanie probki do rozdrabniania.');
+                pause(3)
+                set(handles.awaria,'BackgroundColor','default');
+                set(handles.opis,'string','');
+                set(handles.rozwiazanie,'string','');
+                pause(1)
+                set(handles.rozdrabniacz,'BackgroundColor','green');
+                pause(3)
+                set(handles.rozdrabniacz,'BackgroundColor','red');
+             end
         case 5 % Sito1 mikro metr
         case 6 % Przemieszczenie
+            set(handles.wibracje,'BackgroundColor','green');
+             if rand <= 0.2
+                order = 0
+                set(handles.awaria,'BackgroundColor','red');
+                set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mieœci siê w kanale transportowym.');
+                pause(1)
+                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi usuniêcie próbki i pobranie na nowo.');
+                pause(3)
+                set(handles.awaria,'BackgroundColor','default');
+                set(handles.opis,'string','');
+                set(handles.rozwiazanie,'string','');
+             end
+            set(handles.wibracje,'BackgroundColor','default');
         case 7 % Formowanie porcji
+            
         case 8 % Przemieszczenie
+            set(handles.wibracje,'BackgroundColor','green');
+            
+            set(handles.wibracje,'BackgroundColor','default');
         case 9 % Sam1
+            break;
         case 10 % Sam2
+            break;
         case 11 % chemin
+            break;
         case 12 % tacka
+            break;
     end
 end
 
@@ -288,4 +346,15 @@ wynik = questdlg('Na pewno chcesz opuscic program?',tytul,'Tak','Nie','Nie');
 if strcmp(wynik,'Tak')
    close(gcf);
 end;
+
+
+% --- Executes on key press with focus on reset and none of its controls.
+function reset_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to reset (see GCBO)
+% eventdata  structure with the following fields (see UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
 
