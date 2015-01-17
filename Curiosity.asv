@@ -107,19 +107,18 @@ else
     set(handles.slider1,'Enable','off')
     %Wybiera automatycznie droge
 end
-order = 1
+
 while 1
     switch order
         case 0
         case 1 % Lyzka
             if rand <= 0.5
             order = 0
-            set(handles.awaria,'BackgroundColor','red');
+            
             set(handles.opis,'string','£y¿ka nie mo¿e pobraæ materia³u!');
             pause(1)
             set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi ponowne pobranie materialu');
-            pause(3)
-            set(handles.awaria,'BackgroundColor','default');
+            pause(3)       
             end
         case 2 % Wiertlo
         case 3 % Przemieszenie
