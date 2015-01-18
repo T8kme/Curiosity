@@ -22,7 +22,7 @@ function varargout = Curiosity(varargin)
 
 % Edit the above text to modify the response to help Curiosity
 
-% Last Modified by GUIDE v2.5 17-Jan-2015 21:23:27
+% Last Modified by GUIDE v2.5 18-Jan-2015 00:33:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,7 +61,8 @@ guidata(hObject, handles);
 % UIWAIT makes Curiosity wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 imshow('pia16207-43.jpg')
-
+handles.n=0.1; % wspolczynnik czasu
+guidata(hObject, handles);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = Curiosity_OutputFcn(hObject, eventdata, handles) 
@@ -83,115 +84,371 @@ function start_Callback(hObject, eventdata, handles)
 % Zamiany w GUI po uruchomieniu
 set(handles.start,'BackgroundColor','green');
 set(handles.start,'Enable','off')
-% Wybieranie drogi jaka bedze przemieszczac sie probka
+% warunek auto/manual
 if handles.manual == 1
-    wybor1 = menu('Wybierz cel próbki','SAM1','SAM2','CHEMIN','TACKA')  
-    switch wybor1
-        case 1
-            wybor1 = menu('Wybierz rozmiar próbki','Sito 1mm','Sito 1 mikro metr') 
-            if wybor1 == 2
-                wybor1 = menu('Wybierz Ÿród³o próbki','£y¿ka','Wiert³o') 
-            end
-        case 2
-            wybor1 = menu('Wybierz rozmiar próbki','Sito 1mm','Sito 1 mikro metr') 
-            if wybor1 == 2
-                wybor1 = menu('Wybierz Ÿród³o próbki','£y¿ka','Wiert³o') 
-            end
-        case 3
-            wybor1 = menu('Wybierz Ÿród³o próbki','£y¿ka','Wiert³o') 
-        case 4
-            wybor1 = menu('Wybierz Ÿród³o próbki','£y¿ka','Wiert³o') 
-    end    
+    % Manualne wybieranie przebiego probki po ukladzie
+	cel = menu('Wybierz cel próbki','SAM1','SAM2','CHEMIN','TACKA');
+	while 1
+		if cel == 1 || cel == 2 || cel == 3 || cel == 4
+			break;
+		else
+		   cel = menu('Wybierz cel próbki','SAM1','SAM2','CHEMIN','TACKA');
+		end
+	end
+	if cel == 3 || cel == 4
+		sito = 2;
+	else
+		sito = menu('Wybierz rozmiar próbki','Sito 1mm','Sito 1 mikro metr');                 
+			while 1
+				if sito == 1 || sito == 2
+					break;
+				else
+					sito = menu('Wybierz rozmiar próbki','Sito 1mm','Sito 1 mikro metr'); 
+				end     
+			end
+	end
+		wl = menu('Wybierz Ÿród³o próbki','£y¿ka','Wiert³o'); 
+			while 1
+				if wl == 1 || wl == 2
+					break;
+				else
+					wl = menu('Wybierz Ÿród³o próbki','£y¿ka','Wiert³o'); 
+				end     
+			end  
 else 
+    % tryb automatyczny
     set(handles.manual,'Enable','off')
     set(handles.slider1,'Enable','off')
-    %Wybiera automatycznie droge
+    % losowanie celu
+    cel = fix(rand*4+1);   %'SAM1','SAM2','CHEMIN','TACKA');
+    %opis co wybrano
+    if cel == 1
+        set(handles.opis2,'string','Jako cel automatycznie obrano SAM1');
+        pause(handles.n*1)
+        set(handles.opis2,'string','');
+    elseif cel == 2
+        set(handles.opis2,'string','Jako cel automatycznieobrano SAM2');
+        pause(handles.n*1)
+        set(handles.opis2,'string','');
+    elseif cel == 3
+        set(handles.opis2,'string','Jako cel automatycznie obrano CHEMIN');
+        pause(handles.n*1)
+        set(handles.opis2,'string','');
+    else
+        set(handles.opis2,'string','Jako cel automatycznie obrano tackê obserwacyjn¹');
+        pause(handles.n*1)
+        set(handles.opis2,'string','');
+    end
+    switch cel
+        case 1
+            sito = fix(rand*2+1); %'Sito 1mm','Sito 1 mikro metr');
+            if sito == 2
+				set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1 mikro metr');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+                wl = fix(rand*2+1); %'£y¿ka','Wiert³o')
+				if wl == 1
+					set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano ³y¿kê');
+                    pause(handles.n*1)
+                    set(handles.opis2,'string','');
+				else
+					set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano wyjœcie od wiert³a');
+                    pause(handles.n*1)
+                    set(handles.opis2,'string','');
+				end
+            else
+				set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1mm');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+                wl == 1;
+            end
+        case 2
+            sito = fix(rand*2+1); %'Sito 1mm','Sito 1 mikro metr');
+            if sito == 2
+				set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1 mikro metr');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+                wl = fix(rand*2+1); %'£y¿ka','Wiert³o')
+				if wl == 1
+					set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano ³y¿kê');
+                    pause(handles.n*1)
+                    set(handles.opis2,'string','');
+				else
+					set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano wyjœcie od wiert³a');
+                    pause(handles.n*1)
+                    set(handles.opis2,'string','');
+				end
+            else
+				set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1mm');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+                wl == 1;
+            end
+        case 3
+            sito == 2;
+            wl = fix(rand*2+1) %'£y¿ka','Wiert³o');
+            if wl == 1
+                set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano ³y¿kê');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+            else
+                set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano wyjœcie od wiert³a');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+            end            
+        case 4
+		    sito = fix(rand*2+1) %'Sito 1mm','Sito 1 mikro metr');   
+            if sito == 1
+                set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1mm');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+            else 
+                set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1 mikro metr');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+            end
+            wl = fix(rand*2+1) %'£y¿ka','Wiert³o');         
+            if wl == 1
+                set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano ³y¿kê');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+            else
+                set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano wyjœcie od wiert³a');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+            end
+    end    
 end
-order = 0
+order = 0;
 while 1
     switch order
         case 0 % Przygotowanie komponentow
-            order = 1
-        case 1 % Lyzka
-            set(handles.lyzka,'BackgroundColor','green');
-            if rand <= 0.2
-                order = 0
-                set(handles.awaria,'BackgroundColor','red');
-                set(handles.opis,'string','£y¿ka nie mo¿e pobraæ materia³u!');
-                pause(1)
-                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi ponowne pobranie materialu');
-                pause(3)
-                set(handles.awaria,'BackgroundColor','default');
-                set(handles.opis,'string','');
-                set(handles.rozwiazanie,'string','');
+            order = 1;
+            set(handles.opis2,'string','System przygotowany do startu');
+            pause(handles.n*2)
+            set(handles.opis2,'string','');
+        case 1 
+            if wl == 1% Lyzka
+                set(handles.lyzka,'BackgroundColor','green');
+                set(handles.opis2,'string','Pobieranie materia³u ³y¿k¹ z pod³o¿a');
+                pause(handles.n*3)
+                if rand <= 0.2
+                    set(handles.opis2,'string','');
+                    set(handles.awaria,'BackgroundColor','red');
+                    set(handles.opis,'string','£y¿ka nie mo¿e pobraæ materia³u!');
+                    pause(handles.n*1)
+                    set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi ponowne pobranie materialu');
+                    set(handles.opis2,'string','Pobieranie materia³u ³y¿k¹ z pod³o¿a');
+                    pause(handles.n*3)
+                    set(handles.awaria,'BackgroundColor','default');
+                    set(handles.opis,'string','');
+                    set(handles.rozwiazanie,'string','');
+                    set(handles.lyzka,'BackgroundColor','default');
+                    set(handles.opis2,'string','');
+                else
+                    set(handles.lyzka,'BackgroundColor','default');
+                    set(handles.opis2,'string','');
+                end
+                set(handles.opis2,'string','SUKCES!');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+                order = 2;
+            else % Wiertlo
+                set(handles.opis2,'string','Pobieranie probki od wiertla');
+                %pobieranie danych xD
+                pause(handles.n*3)
+                set(handles.opis2,'string','SUKCES!');
+                order = 2;
             end
-            pause(3)
-            set(handles.lyzka,'BackgroundColor','default');
-        case 2 % Wiertlo
-            %pobieranie danych xD
-        case 3 % Przemieszenie
-            set(handles.wibracje,'BackgroundColor','green');
-            if rand <= 0.2
-                order = 0
-                set(handles.awaria,'BackgroundColor','red');
-                set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mieœci siê w kanale transportowym.');
-                pause(1)
-                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi usuniêcie próbki i pobranie na nowo.');
-                pause(3)
-                set(handles.awaria,'BackgroundColor','default');
-                set(handles.opis,'string','');
-                set(handles.rozwiazanie,'string','');
-            end
-            set(handles.wibracje,'BackgroundColor','default');
-        case 4 % Sito1mm
-            set(handles.rozdrabniacz,'BackgroundColor','green');
-             if probka <= 1
-                set(handles.awaria,'BackgroundColor','red');
-                set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mozna przesiac przez sito.');
-                pause(1)
-                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi przekazanie probki do rozdrabniania.');
-                pause(3)
-                set(handles.awaria,'BackgroundColor','default');
-                set(handles.opis,'string','');
-                set(handles.rozwiazanie,'string','');
-                pause(1)
-                set(handles.rozdrabniacz,'BackgroundColor','green');
-                pause(3)
-                set(handles.rozdrabniacz,'BackgroundColor','red');
-             end
-        case 5 % Sito1 mikro metr
-        case 6 % Przemieszczenie
-            set(handles.wibracje,'BackgroundColor','green');
+        case 2 % Przemieszenie
+             set(handles.wibracje,'BackgroundColor','green');
+             set(handles.przemieszczanie,'BackgroundColor','green');
+             set(handles.opis2,'string','Transportowanie probki do filtracji');
+             pause(handles.n*3)
              if rand <= 0.2
-                order = 0
                 set(handles.awaria,'BackgroundColor','red');
                 set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mieœci siê w kanale transportowym.');
-                pause(1)
+                pause(handles.n*1)
                 set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi usuniêcie próbki i pobranie na nowo.');
-                pause(3)
+                pause(handles.n*3)
                 set(handles.awaria,'BackgroundColor','default');
+                set(handles.wibracje,'BackgroundColor','default');
+                set(handles.przemieszczanie,'BackgroundColor','default');
                 set(handles.opis,'string','');
+                set(handles.opis2,'string','');
                 set(handles.rozwiazanie,'string','');
-             end
-            set(handles.wibracje,'BackgroundColor','default');
-        case 7 % Formowanie porcji
-            
-        case 8 % Przemieszczenie
-            set(handles.wibracje,'BackgroundColor','green');
-            
-            set(handles.wibracje,'BackgroundColor','default');
-        case 9 % Sam1
-            break;
-        case 10 % Sam2
-            break;
-        case 11 % chemin
-            break;
-        case 12 % tacka
-            break;
+                % Pobieranie na nowo
+                if wl == 1% Lyzka
+                    set(handles.lyzka,'BackgroundColor','green');
+                    set(handles.opis2,'string','Pobieranie materia³u ³y¿k¹ z pod³o¿a');
+                    pause(handles.n*3)
+                    set(handles.lyzka,'BackgroundColor','default');
+                    set(handles.opis2,'string','SUKCES!');
+                    pause(handles.n*1)
+                    set(handles.opis2,'string','');
+                    order = 2;
+                else
+                    set(handles.opis2,'string','Pobieranie probki od wiertla');
+                    %pobieranie danych xD
+                    pause(handles.n*3)
+                    set(handles.opis2,'string','SUKCES!');
+                    order = 2;
+                end
+            else
+                set(handles.wibracje,'BackgroundColor','default');
+                set(handles.przemieszczanie,'BackgroundColor','default');
+                set(handles.opis2,'string','SUKCES!');
+                pause(handles.n*1)
+                set(handles.opis2,'string','');
+                order = 3;
+            end
+        case 3 % Sito1mm
+            if sito == 1
+                set(handles.rozdrabniacz,'BackgroundColor','green');
+                set(handles.opis2,'string','Przesiewanie probki przez sito 1mm');
+                pause(handles.n*3)
+                 if rand <= 0.2
+                    set(handles.opis2,'string','');
+                    set(handles.awaria,'BackgroundColor','red');
+                    set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mozna przesiac przez sito.');
+                    pause(handles.n*1)
+                    set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi przekazanie probki do rozdrabniania.');
+                    pause(handles.n*3)
+                    set(handles.awaria,'BackgroundColor','default');
+                    set(handles.opis,'string','');
+                    set(handles.rozwiazanie,'string','');
+                    set(handles.rozdrabniacz,'BackgroundColor','green');
+                    set(handles.opis2,'string','Rozdrabnianie probki');
+                    pause(handles.n*3)
+                    set(handles.rozdrabniacz,'BackgroundColor','default');
+                    set(handles.opis2,'string','SUKCES!');
+                    pause(handles.n*1)
+                    set(handles.opis2,'string','');
+                 end
+                 set(handles.rozdrabniacz,'BackgroundColor','default');
+                 set(handles.opis2,'string','SUKCES!');
+                 pause(handles.n*1)
+                 set(handles.opis2,'string','');
+                 order = 4;
+            else % Sito1 mikro metr
+                 set(handles.rozdrabniacz,'BackgroundColor','green');
+                 set(handles.opis2,'string','Przesiewanie probki przez sito 1 mikro metr');
+                 pause(handles.n*3)
+                   if rand <= 0.2
+                      set(handles.opis2,'string','');
+                      set(handles.awaria,'BackgroundColor','red');
+                      set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mozna przesiac przez sito.');
+                      pause(handles.n*1)
+                      set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi przekazanie probki do rozdrabniania.');
+                      pause(handles.n*3)
+                      set(handles.awaria,'BackgroundColor','default');
+                      set(handles.opis,'string','');
+                      set(handles.rozwiazanie,'string','');
+                      set(handles.rozdrabniacz,'BackgroundColor','green');
+                      set(handles.opis2,'string','Rozdrabnianie probki');
+                      pause(handles.n*3)
+                      set(handles.rozdrabniacz,'BackgroundColor','default');
+                      set(handles.opis2,'string','SUKCES!');
+                      pause(handles.n*1)
+                      set(handles.opis2,'string','');
+                   else
+                       set(handles.rozdrabniacz,'BackgroundColor','default');
+                       set(handles.opis2,'string','SUKCES!');
+                       pause(handles.n*1)
+                       set(handles.opis2,'string','');
+                   end
+                   order = 4;
+            end
+        case 4 % Przemieszczenie
+              set(handles.wibracje,'BackgroundColor','green');
+              set(handles.przemieszczanie,'BackgroundColor','green');
+              set(handles.opis2,'string','Transportowanie probki do formowania');
+              pause(handles.n*3)
+              set(handles.wibracje,'BackgroundColor','default');
+              set(handles.przemieszczanie,'BackgroundColor','default');
+              set(handles.opis2,'string','');
+              set(handles.opis2,'string','SUKCES!');
+              pause(handles.n*1)
+              set(handles.opis2,'string','');
+              order = 5;
+        case 5 % Formowanie porcji
+              set(handles.porcjowanie,'BackgroundColor','green');
+              set(handles.opis2,'string','Formowanie porcji w celu dalszego transportu do celu');
+              pause(handles.n*3)
+              if rand <= 0.2
+                  set(handles.opis2,'string','');
+                  set(handles.awaria,'BackgroundColor','red');
+                  set(handles.opis,'string','Nast¹pi³ b³¹d przy formowaniu porcji z próbki.');
+                  pause(handles.n*1)
+                  set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi kolejna próba formowania próbki.');
+                  pause(handles.n*3)
+                  set(handles.awaria,'BackgroundColor','default');
+                  set(handles.opis,'string','');
+                  set(handles.rozwiazanie,'string','');
+                  set(handles.opis2,'string','Formowanie porcji w celu dalszego transportu do celu');
+                  set(handles.porcjowanie,'BackgroundColor','green');
+                  pause(handles.n*3)
+                  set(handles.porcjowanie,'BackgroundColor','default');
+                  set(handles.opis2,'string','SUKCES!');
+                  pause(handles.n*1)
+                  set(handles.opis2,'string','');
+              else
+                  set(handles.porcjowanie,'BackgroundColor','default');
+                  set(handles.opis2,'string','SUKCES!');
+                  pause(handles.n*1)
+                  set(handles.opis2,'string','');
+              end
+              order = 6;
+        case 6 % Przemieszczenie
+              set(handles.wibracje,'BackgroundColor','green');
+              set(handles.przemieszczanie,'BackgroundColor','green');
+              set(handles.opis2,'string','Transportowanie probki do celu');
+              pause(handles.n*3)
+              set(handles.wibracje,'BackgroundColor','default');
+              set(handles.przemieszczanie,'BackgroundColor','default');
+              set(handles.opis2,'string','SUKCES!');
+              pause(handles.n*1)
+              set(handles.opis2,'string','');
+              order = 7;
+        case 7 %cel
+              if cel == 1 % Sam1
+                  set(handles.sam1,'BackgroundColor','green');
+                  set(handles.opis2,'string','Probka dostala sie do SAM1');
+                  pause(handles.n*3)
+                  set(handles.sam1,'BackgroundColor','default');
+                  set(handles.opis2,'string','');
+                  order = 8; 
+              elseif cel == 2 % Sam2
+                  set(handles.sam2,'BackgroundColor','green');
+                  set(handles.opis2,'string','Probka dostala sie do SAM2');
+                  pause(handles.n*3)
+                  set(handles.sam2,'BackgroundColor','default');
+                  set(handles.opis2,'string','');
+                  order = 8; 
+              elseif cel == 3 % chemin
+                  set(handles.chemin,'BackgroundColor','green');
+                  set(handles.opis2,'string','Probka dostala sie do CHEMIN');
+                  pause(handles.n*3)
+                  set(handles.chemin,'BackgroundColor','default');
+                  set(handles.opis2,'string','');
+                  order = 8; 
+              else % tacka
+                  set(handles.tacka,'BackgroundColor','green');
+                  set(handles.opis2,'string','Probka dostala sie do tacki obserwacyjnej');
+                  pause(handles.n*3)
+                  set(handles.tacka,'BackgroundColor','default');
+                  set(handles.opis2,'string','');
+                  order = 8; 
+              end
+        case 8
+              set(handles.opis2,'string','System zakonczyl dzialanie');
+              pause(handles.n*3)
+              set(handles.opis2,'string','');
+              break;
     end
 end
-
-
+set(handles.start,'BackgroundColor','default');
+set(handles.start,'Enable','on')
 
 function reset_Callback(hObject, eventdata, handles)
 % hObject    handle to reset (see GCBO)
@@ -217,7 +474,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
 else
 	handles.manual = 0;
 end
-guidata(hObject, handles)
+guidata(hObject, handles);
 
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
@@ -319,20 +576,17 @@ function sam1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --- Executes on button press in sam2.
 function sam2_Callback(hObject, eventdata, handles)
 % hObject    handle to sam2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --- Executes on button press in przemieszczanie.
 function przemieszczanie_Callback(hObject, eventdata, handles)
 % hObject    handle to przemieszczanie (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 % --- Executes on button press in zamknij.
 function zamknij_Callback(hObject, eventdata, handles)
@@ -345,7 +599,6 @@ if strcmp(wynik,'Tak')
    close(gcf);
 end;
 
-
 % --- Executes on key press with focus on reset and none of its controls.
 function reset_KeyPressFcn(hObject, eventdata, handles)
 % hObject    handle to reset (see GCBO)
@@ -354,5 +607,4 @@ function reset_KeyPressFcn(hObject, eventdata, handles)
 %	Character: character interpretation of the key(s) that was pressed
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
-
 
