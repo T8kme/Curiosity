@@ -60,8 +60,14 @@ guidata(hObject, handles);
 
 % UIWAIT makes Curiosity wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+clc;
 imshow('pia16207-43.jpg')
-handles.n=1; % wspolczynnik czasu
+handles.n=2; % wspolczynnik czasu
+hMarker=line(25,25,'linestyle','none','Tag','Marker',...
+                    'marker','o',...      % poczatkowe ustawienie markera
+                    'MarkerSize',15,...
+                    'markeredgecolor','black',...
+                    'markerfacecolor','r');
 guidata(hObject, handles);
 
 % --- Outputs from this function are returned to the command line.
@@ -160,7 +166,7 @@ else
 				set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1mm');
                 pause(handles.n*1)
                 set(handles.opis2,'string','');
-                wl == 1;
+                wl = 1;
             end
         case 2
             sito = fix(rand*2+1); %'Sito 1mm','Sito 150 mikro metrow');
@@ -182,10 +188,10 @@ else
 				set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1mm');
                 pause(handles.n*1)
                 set(handles.opis2,'string','');
-                wl == 1;
+                wl = 1;
             end
         case 3
-            sito == 2;
+            sito = 2;
             wl = fix(rand*2+1) %'£y¿ka','Wiert³o');
             if wl == 1
                 set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano ³y¿kê');
@@ -197,7 +203,7 @@ else
                 set(handles.opis2,'string','');
             end            
         case 4
-		    sito = fix(rand*2+1) %'Sito 1mm','Sito 150 mikro metrow');   
+		    sito = fix(rand*2+1); %'Sito 1mm','Sito 150 mikro metrow');   
             if sito == 1
                 set(handles.opis2,'string','Jako rozmiar probki automatycznie obrano Sito 1mm');
                 pause(handles.n*1)
@@ -207,7 +213,7 @@ else
                 pause(handles.n*1)
                 set(handles.opis2,'string','');
             end
-            wl = fix(rand*2+1) %'£y¿ka','Wiert³o');         
+            wl = fix(rand*2+1); %'£y¿ka','Wiert³o');         
             if wl == 1
                 set(handles.opis2,'string','Jako Ÿród³o próbki automatycznie obrano ³y¿kê');
                 pause(handles.n*1)
@@ -219,26 +225,36 @@ else
             end
     end    
 end
-order = 0;
+handles.order = 0;
 while 1
-    switch order
+    switch handles.order
         case 0 % Przygotowanie komponentow
-            order = 1;
+            handles.order = 1;
             set(handles.opis2,'string','System przygotowany do startu');
             pause(handles.n*2)
             set(handles.opis2,'string','');
+			guidata(hObject, handles);
         case 1 
             if wl == 1% Lyzka
                 set(handles.lyzka,'BackgroundColor','green');
+                hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+                    'Xdata',280,...
+                    'YData',600,...
+                    'marker','o',...    % lyzka
+                    'MarkerSize',15,...
+                    'markeredgecolor','black',...
+                    'markerfacecolor','r');
                 set(handles.opis2,'string','Pobieranie materia³u ³y¿k¹ z pod³o¿a');
                 pause(handles.n*3)
-                if rand <= 0.2
+                if rand <= 0.3 % awaria lyzki
                     set(handles.opis2,'string','');
                     set(handles.awaria,'BackgroundColor','red');
                     set(handles.opis,'string','£y¿ka nie mo¿e pobraæ materia³u!');
                     pause(handles.n*1)
                     set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi ponowne pobranie materialu');
                     set(handles.opis2,'string','Pobieranie materia³u ³y¿k¹ z pod³o¿a');
+                    probkilyzka = xlsread('probkilyzka.xls'); % pobieranie danych
+                    probkalyzka = randsample(probkilyzka,1);
                     pause(handles.n*3)
                     set(handles.awaria,'BackgroundColor','default');
                     set(handles.opis,'string','');
@@ -246,68 +262,103 @@ while 1
                     set(handles.lyzka,'BackgroundColor','default');
                     set(handles.opis2,'string','');
                 else
+                    probkilyzka = xlsread('probkilyzka.xls'); % pobieranie danych
+                    probkalyzka = randsample(probkilyzka,1);
                     set(handles.lyzka,'BackgroundColor','default');
                     set(handles.opis2,'string','');
                 end
                 set(handles.opis2,'string','SUKCES!');
+				set(handles.opis3,'string',probkalyzka);
                 pause(handles.n*1)
                 set(handles.opis2,'string','');
-                order = 2;
+                handles.order = 2;
             else % Wiertlo
+                hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+                'Xdata',180,...
+                'YData',110,...
+                'marker','o',...    % wiertlo
+                'MarkerSize',15,...
+                'markeredgecolor','black',...
+                'markerfacecolor','r');
                 set(handles.opis2,'string','Pobieranie probki od wiertla');
-                %pobieranie danych xD
-                pause(handles.n*3)
+                probkiwiertlo = xlsread('probkiwiertlo.xls'); % pobieranie danych
+                probkawiertlo = randsample(probkiwiertlo,1);
+                pause(handles.n*2)
                 set(handles.opis2,'string','SUKCES!');
-                order = 2;
+				set(handles.opis3,'string',probkawiertlo);
+                handles.order = 2;
             end
+            guidata(hObject, handles);
         case 2 % Przemieszenie
              set(handles.wibracje,'BackgroundColor','green');
              set(handles.przemieszczanie,'BackgroundColor','green');
+			 hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+			 'marker','*',...    % przemieszczenie
+			 'MarkerSize',15,...
+			 'markerfacecolor','r');
              set(handles.opis2,'string','Transportowanie probki do filtracji');
-             pause(handles.n*3)
-             if rand <= 0.2
-                set(handles.awaria,'BackgroundColor','red');
-                set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mieœci siê w kanale transportowym.');
-                pause(handles.n*1)
-                set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi usuniêcie próbki i pobranie na nowo.');
-                pause(handles.n*3)
-                set(handles.awaria,'BackgroundColor','default');
-                set(handles.wibracje,'BackgroundColor','default');
-                set(handles.przemieszczanie,'BackgroundColor','default');
-                set(handles.opis,'string','');
-                set(handles.opis2,'string','');
-                set(handles.rozwiazanie,'string','');
-                % Pobieranie na nowo
-                if wl == 1% Lyzka
-                    set(handles.lyzka,'BackgroundColor','green');
-                    set(handles.opis2,'string','Pobieranie materia³u ³y¿k¹ z pod³o¿a');
-                    pause(handles.n*3)
-                    set(handles.lyzka,'BackgroundColor','default');
-                    set(handles.opis2,'string','SUKCES!');
-                    pause(handles.n*1)
-                    set(handles.opis2,'string','');
-                    order = 2;
-                else
-                    set(handles.opis2,'string','Pobieranie probki od wiertla');
-                    %pobieranie danych xD
-                    pause(handles.n*3)
-                    set(handles.opis2,'string','SUKCES!');
-                    order = 2;
-                end
-            else
-                set(handles.wibracje,'BackgroundColor','default');
-                set(handles.przemieszczanie,'BackgroundColor','default');
-                set(handles.opis2,'string','SUKCES!');
-                pause(handles.n*1)
-                set(handles.opis2,'string','');
-                order = 3;
-            end
+             pause(handles.n*2)
+			 if wl == 1
+				 if probkalyzka >= 1
+					set(handles.awaria,'BackgroundColor','red');
+					set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mieœci siê w kanale transportowym.');
+					pause(handles.n*1)
+					set(handles.rozwiazanie,'string','W przeciagu 3 sekund nastapi usuniêcie próbki i pobranie na nowo.');
+					pause(handles.n*3)
+					set(handles.awaria,'BackgroundColor','default');
+					set(handles.wibracje,'BackgroundColor','default');
+					set(handles.przemieszczanie,'BackgroundColor','default');
+					set(handles.opis,'string','');
+					set(handles.opis2,'string','');
+					set(handles.rozwiazanie,'string','');
+					% Pobieranie na nowo
+					set(handles.lyzka,'BackgroundColor','green');
+					hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+					'Xdata',280,...
+					'YData',600,...
+					'marker','o',...    % lyzka
+					'MarkerSize',15,...
+					'markeredgecolor','black',...
+					'markerfacecolor','r');				
+					set(handles.opis2,'string','Pobieranie materia³u ³y¿k¹ z pod³o¿a');
+					probkilyzka = xlsread('probkilyzka.xls','A1:A100'); % pobieranie danych / awaria
+					probkalyzka = randsample(probkilyzka,1);
+					set(handles.opis3,'string',probkalyzka);
+					pause(handles.n*3)
+					set(handles.lyzka,'BackgroundColor','default');
+					set(handles.opis2,'string','SUKCES!');
+					pause(handles.n*1)
+					set(handles.opis2,'string','');
+					set(handles.wibracje,'BackgroundColor','green');
+					set(handles.przemieszczanie,'BackgroundColor','green');
+					hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+					'marker','*',...    % przemieszczenie
+					'MarkerSize',15,...
+					'markerfacecolor','r');
+					set(handles.opis2,'string','Transportowanie probki do filtracji');
+					pause(handles.n*2)
+					handles.order = 2;
+				 end
+			end
+            set(handles.wibracje,'BackgroundColor','default');
+            set(handles.przemieszczanie,'BackgroundColor','default');
+            set(handles.opis2,'string','SUKCES!');
+            pause(handles.n*1)
+            set(handles.opis2,'string','');
+            handles.order = 3;
+			guidata(hObject, handles);
         case 3 % Sito1mm
             if sito == 1
-                set(handles.rozdrabniacz,'BackgroundColor','green');
                 set(handles.opis2,'string','Przesiewanie probki przez sito 1mm');
+				hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+                'Xdata',320,...
+                'YData',400,...
+                'marker','o',...    % sito
+                'MarkerSize',15,...
+                'markeredgecolor','black',...
+                'markerfacecolor','r');
                 pause(handles.n*3)
-                 if rand <= 0.2
+                 if rand <= 0.3
                     set(handles.opis2,'string','');
                     set(handles.awaria,'BackgroundColor','red');
                     set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mozna przesiac przez sito.');
@@ -318,23 +369,46 @@ while 1
                     set(handles.opis,'string','');
                     set(handles.rozwiazanie,'string','');
                     set(handles.rozdrabniacz,'BackgroundColor','green');
+					hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+					'Xdata',400,...
+					'YData',230,...
+					'marker','o',...    % rozdrabnianie
+					'MarkerSize',15,...
+					'markeredgecolor','black',...
+					'markerfacecolor','r');
                     set(handles.opis2,'string','Rozdrabnianie probki');
-                    pause(handles.n*3)
+					if wl == 1
+						probkilyzka = xlsread('probkilyzka.xls','A1:A150'); % pobieranie danych / rozdrabnianie
+						probkalyzka = randsample(probkilyzka,1);
+						pause(handles.n*2)
+						set(handles.opis3,'string',probkalyzka)
+					else
+						probkiwiertlo = xlsread('probkiwiertlo.xls','A1:A150'); % pobieranie danych / rozdrabnianie
+						probkawiertlo = randsample(probkiwiertlo,1);
+						pause(handles.n*2)
+						set(handles.opis3,'string',probkawiertlo)
+					end
                     set(handles.rozdrabniacz,'BackgroundColor','default');
                     set(handles.opis2,'string','SUKCES!');
                     pause(handles.n*1)
                     set(handles.opis2,'string','');
-                 end
-                 set(handles.rozdrabniacz,'BackgroundColor','default');
+				 end
                  set(handles.opis2,'string','SUKCES!');
                  pause(handles.n*1)
                  set(handles.opis2,'string','');
-                 order = 4;
+                 handles.order = 4;
+                 guidata(hObject, handles);
             else % Sito150 mikro metrow
-                 set(handles.rozdrabniacz,'BackgroundColor','green');
                  set(handles.opis2,'string','Przesiewanie probki przez sito 150 mikro metrow');
+				 hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+                 'Xdata',320,...
+                 'YData',400,...
+                 'marker','o',...    % sito
+                 'MarkerSize',15,...
+                 'markeredgecolor','black',...
+                 'markerfacecolor','r');
                  pause(handles.n*3)
-                   if rand <= 0.2
+                   if probkawiertlo >= 0.00015
                       set(handles.opis2,'string','');
                       set(handles.awaria,'BackgroundColor','red');
                       set(handles.opis,'string','Próbka jest zbyt du¿a. Nie mozna przesiac przez sito.');
@@ -345,23 +419,44 @@ while 1
                       set(handles.opis,'string','');
                       set(handles.rozwiazanie,'string','');
                       set(handles.rozdrabniacz,'BackgroundColor','green');
+					  hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+				 	 'Xdata',400,...
+					 'YData',230,...
+					 'marker','o',...    % rozdrabnianie
+					 'MarkerSize',15,...
+					 'markeredgecolor','black',...
+					 'markerfacecolor','r');
                       set(handles.opis2,'string','Rozdrabnianie probki');
-                      pause(handles.n*3)
+					  if wl == 1
+						  probkilyzka = xlsread('probkilyzka.xls','A1:A150'); % pobieranie danych / rozdrabnianie
+						  probkalyzka = randsample(probkilyzka,1);
+						  pause(handles.n*2)
+						  set(handles.opis3,'string',probkalyzka)
+					  else
+						  probkiwiertlo = xlsread('probkiwiertlo.xls','A1:A150'); % pobieranie danych / rozdrabnianie
+						  probkawiertlo = randsample(probkiwiertlo,1);
+						  pause(handles.n*2)
+						  set(handles.opis3,'string',probkawiertlo)
+					  end
                       set(handles.rozdrabniacz,'BackgroundColor','default');
                       set(handles.opis2,'string','SUKCES!');
                       pause(handles.n*1)
                       set(handles.opis2,'string','');
                    else
-                       set(handles.rozdrabniacz,'BackgroundColor','default');
                        set(handles.opis2,'string','SUKCES!');
                        pause(handles.n*1)
                        set(handles.opis2,'string','');
                    end
-                   order = 4;
+                   handles.order = 4;
             end
+            guidata(hObject, handles);
         case 4 % Przemieszczenie
               set(handles.wibracje,'BackgroundColor','green');
               set(handles.przemieszczanie,'BackgroundColor','green');
+			  hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+			  'marker','*',...    % przemieszczenie
+			  'MarkerSize',15,...
+			  'markerfacecolor','r');
               set(handles.opis2,'string','Transportowanie probki do formowania');
               pause(handles.n*3)
               set(handles.wibracje,'BackgroundColor','default');
@@ -370,12 +465,20 @@ while 1
               set(handles.opis2,'string','SUKCES!');
               pause(handles.n*1)
               set(handles.opis2,'string','');
-              order = 5;
+              handles.order = 5;
+              guidata(hObject, handles);
         case 5 % Formowanie porcji
               set(handles.porcjowanie,'BackgroundColor','green');
+			  hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+			  'Xdata',480,...
+			  'YData',600,...
+			  'marker','o',...    % porcjowanie
+			  'MarkerSize',15,...
+			  'markeredgecolor','black',...
+			  'markerfacecolor','r');
               set(handles.opis2,'string','Formowanie porcji w celu dalszego transportu do celu');
               pause(handles.n*3)
-              if rand <= 0.2
+              if rand <= 0.5
                   set(handles.opis2,'string','');
                   set(handles.awaria,'BackgroundColor','red');
                   set(handles.opis,'string','Nast¹pi³ b³¹d przy formowaniu porcji z próbki.');
@@ -398,10 +501,15 @@ while 1
                   pause(handles.n*1)
                   set(handles.opis2,'string','');
               end
-              order = 6;
+              handles.order = 6;
+              guidata(hObject, handles);
         case 6 % Przemieszczenie
               set(handles.wibracje,'BackgroundColor','green');
               set(handles.przemieszczanie,'BackgroundColor','green');
+		 	  hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+		 	  'marker','*',...    % przemieszczenie
+		 	  'MarkerSize',15,...
+			  'markerfacecolor','r');
               set(handles.opis2,'string','Transportowanie probki do celu');
               pause(handles.n*3)
               set(handles.wibracje,'BackgroundColor','default');
@@ -409,46 +517,78 @@ while 1
               set(handles.opis2,'string','SUKCES!');
               pause(handles.n*1)
               set(handles.opis2,'string','');
-              order = 7;
+              handles.order = 7;
+              guidata(hObject, handles);
         case 7 %cel
               if cel == 1 % Sam1
-                  set(handles.sam1,'BackgroundColor','green');
+                 set(handles.sam1,'BackgroundColor','green');
+				 hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+				 'Xdata',38,...
+				 'YData',727,...
+				 'marker','o',...    % sam1
+				 'MarkerSize',15,...
+				 'markeredgecolor','black',...
+				 'markerfacecolor','r');
                   set(handles.opis2,'string','Probka dostala sie do SAM1');
                   pause(handles.n*3)
                   set(handles.sam1,'BackgroundColor','default');
                   set(handles.opis2,'string','');
-                  order = 8; 
+                  handles.order = 8; 
               elseif cel == 2 % Sam2
                   set(handles.sam2,'BackgroundColor','green');
+				  hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+				 'Xdata',113,...
+				 'YData',727,...
+				 'marker','o',...    % sam2
+				 'MarkerSize',15,...
+				 'markeredgecolor','black',...
+				 'markerfacecolor','r');
                   set(handles.opis2,'string','Probka dostala sie do SAM2');
                   pause(handles.n*3)
                   set(handles.sam2,'BackgroundColor','default');
                   set(handles.opis2,'string','');
-                  order = 8; 
+                  handles.order = 8; 
               elseif cel == 3 % chemin
                   set(handles.chemin,'BackgroundColor','green');
+				  hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+				 'Xdata',186,...
+				 'YData',727,...
+				 'marker','o',...    % chemin
+				 'MarkerSize',15,...
+				 'markeredgecolor','black',...
+				 'markerfacecolor','r');
                   set(handles.opis2,'string','Probka dostala sie do CHEMIN');
                   pause(handles.n*3)
                   set(handles.chemin,'BackgroundColor','default');
                   set(handles.opis2,'string','');
-                  order = 8; 
+                  handles.order = 8; 
               else % tacka
                   set(handles.tacka,'BackgroundColor','green');
+				  hMarker_local = findobj(gcf,'Tag','Marker'); set(hMarker_local,...
+				  'Xdata',260,...
+				  'YData',727,...
+				  'marker','o',...    % tacka
+				  'MarkerSize',15,...
+				  'markeredgecolor','black',...
+				  'markerfacecolor','r');
                   set(handles.opis2,'string','Probka dostala sie do tacki obserwacyjnej');
                   pause(handles.n*3)
                   set(handles.tacka,'BackgroundColor','default');
                   set(handles.opis2,'string','');
-                  order = 8; 
+                  handles.order = 8; 
               end
+              guidata(hObject, handles);
         case 8
               set(handles.opis2,'string','System zakonczyl dzialanie');
-              pause(handles.n*3)
+              pause(handles.n*2)
               set(handles.opis2,'string','');
               break;
     end
 end
 set(handles.start,'BackgroundColor','default');
 set(handles.start,'Enable','on')
+
+guidata(hObject, handles);
 
 function reset_Callback(hObject, eventdata, handles)
 % hObject    handle to reset (see GCBO)
@@ -485,6 +625,12 @@ function slider1_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
+% handles.sliderMin = get(hObject, 'Min') % correct
+% handles.sliderMax = get(hObject, 'Max') % correct
+% sliderStep = get(hObject, 'SliderStep') % correct
+% currentSliderStep = get(hObject, 'Value') % correct, 1 at start
+% currentSliderStep = fix(currentSliderStep*9)
+% guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function slider1_CreateFcn(hObject, eventdata, handles)
@@ -497,6 +643,17 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
+% handles.sliderMin = 1;
+% handles.sliderMax = 9; % this is variable
+% sliderStep = [1, 1]; % major and minor steps of 1
+% 
+% set(handles.slider,'Min',handles.sliderMin);
+% set(handles.slider,'Max',handles.sliderMax);
+% set(handles.slider,'SliderStep',sliderStep);
+% set(handles.slider,'Value',handles.sliderMin); % set to beginning of sequence
+% handles.wartosc = get(handles.slider1,'Value')
+% set(opis2,'String',num2str(handles.wartosc))
+% guidata(hObject, handles);
 
 % --- Executes on button press in awaria.
 function awaria_Callback(hObject, eventdata, handles)
@@ -555,7 +712,6 @@ function porcjowanie_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --- Executes on button press in tacka.
 function tacka_Callback(hObject, eventdata, handles)
 % hObject    handle to tacka (see GCBO)
@@ -607,4 +763,3 @@ function reset_KeyPressFcn(hObject, eventdata, handles)
 %	Character: character interpretation of the key(s) that was pressed
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
-
